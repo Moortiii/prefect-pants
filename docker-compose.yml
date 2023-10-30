@@ -1,0 +1,57 @@
+version: "3.9"
+
+x-no-proxy: &no-proxy
+  no_proxy: server,database,cli,worker
+  NO_PROXY: server,database,cli,worker
+
+services:
+  database:
+    image: postgres:15.2-alpine
+    restart: always
+    environment:
+      <<: *no-proxy
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: prefect
+    expose:
+      - 5432
+    profiles: ["server"]
+
+  server:
+    image: prefecthq/prefect:2.14.2-python3.11
+    restart: always
+    entrypoint: ["/opt/prefect/entrypoint.sh", "prefect", "server", "start"]
+    environment:
+      <<: *no-proxy
+      PREFECT_UI_URL: http://127.0.0.1:4900/api
+      PREFECT_API_URL: http://127.0.0.1:4900/api
+      PREFECT_SERVER_API_PORT: 4900
+      PREFECT_SERVER_API_HOST: 0.0.0.0
+      PREFECT_API_DATABASE_CONNECTION_URL: postgresql+asyncpg://postgres:postgres@database:5432/prefect
+    ports:
+      - 4900:4900
+    depends_on:
+      - database
+    profiles: ["server"]
+
+  worker:
+    image: prefecthq/prefect:2.14.2-python3.11
+    restart: always 
+    entrypoint: ["/opt/prefect/entrypoint.sh", "prefect", "worker", "start", "--pool", "example-pool", "--type", "process"]
+    volumes:
+      - "./flows:/root/flows"
+    environment:
+      <<: *no-proxy
+      PREFECT_API_URL: http://server:4900/api
+    profiles: ["worker"]
+
+  cli:
+    image: prefecthq/prefect:2.14.2-python3.11
+    entrypoint: "bash"
+    working_dir: "/root/flows"
+    volumes:
+      - "./flows:/root/flows"
+    environment:
+      <<: *no-proxy
+      PREFECT_API_URL: http://server:4900/api
+    profiles: ["cli"]
