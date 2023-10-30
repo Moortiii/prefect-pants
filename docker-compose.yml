@@ -1,0 +1,50 @@
+version: "3.9"
+
+x-no-proxy: &no-proxy
+  no_proxy: server,database,cli,worker
+  NO_PROXY: server,database,cli,worker
+
+services:
+  database:
+    image: postgres:15.2-alpine
+    environment:
+      <<: *no-proxy
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: prefect
+    expose:
+      - 5432
+
+  server:
+    image: prefect-pants
+    command: ["/bin/app/bin/prefect", "server", "start"]
+    environment:
+      <<: *no-proxy
+      PREFECT_UI_URL: http://127.0.0.1:4200/api
+      PREFECT_API_URL: http://127.0.0.1:4200/api
+      PREFECT_SERVER_API_PORT: 4200
+      PREFECT_SERVER_API_HOST: 0.0.0.0
+      PREFECT_API_DATABASE_CONNECTION_URL: postgresql+asyncpg://postgres:postgres@database:5432/prefect
+    ports:
+      - 4200:4200
+    depends_on:
+      - database
+
+  worker:
+    image: prefect-pants
+    command: ["/bin/app/bin/prefect", "worker", "start", "--prefetch-seconds", "10", "--pool", "example-pool", "--type", "process"]
+    volumes:
+      - ./projects/example-service/prefect.yaml:/bin/app/prefect.yaml
+      - ./projects/example-service/example_service/flows:/bin/app/lib/python3.11/site-packages/example_service/flows
+      - ./projects/example-service/example_service/tasks:/bin/app/lib/python3.11/site-packages/example_service/tasks
+      - ./libs/example-lib/example_lib:/bin/app/lib/python3.11/site-packages/example_lib
+    environment:
+      <<: *no-proxy
+      PREFECT_API_URL: http://server:4200/api
+
+  cli:
+    image: prefect-pants
+    entrypoint: "bash"
+    environment:
+      <<: *no-proxy
+      PREFECT_API_URL: http://server:4200/api

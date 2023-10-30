@@ -1,0 +1,18 @@
+version: "3"
+
+tasks:
+  lock:
+    desc: Update lockfile for dependencies
+    cmds:
+      - pants generate-lockfiles
+
+  roots:
+    desc: "Generate .env file used to set PYTHONPATH for Visual Studio Code"
+    cmds:
+      - python3 -c "print('PYTHONPATH=\"./' + ':./'.join(\"$(pants roots --roots-sep=' ')\".split()) + ':\$PYTHONPATH\"')" > .env
+
+  build:
+    aliases:
+      - package
+    cmds:
+      - "pants package ::"

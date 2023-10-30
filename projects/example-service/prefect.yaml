@@ -1,0 +1,31 @@
+# Generic metadata about this project
+name: app
+prefect-version: 2.14.2
+
+# build section allows you to manage and build docker images
+build: null
+
+# push section allows you to manage if and how this project is uploaded to remote locations
+push: null
+
+# pull section allows you to provide instructions for cloning this project in remote locations
+pull:
+- prefect.deployments.steps.set_working_directory:
+    directory: /usr/bin/app
+
+# the deployments section allows you to provide configuration for deploying flows
+deployments:
+- name: example-deployment
+  version: null
+  tags: []
+  description: null
+  entrypoint: lib/python3.11/site-packages/example_service/flows/example_flow.py:example_flow
+  parameters: {}
+  work_pool:
+    name: example-pool
+    work_queue_name: null
+    job_variables: {}
+  schedule:
+    interval: 15
+    anchor_date: '2023-10-31T11:34:06.924742+00:00'
+    timezone: UTC

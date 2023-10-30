@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "monorepo-example"
+version = "0.1.0"
+description = ""
+authors = ["Morten Hauge <morten.hauge97@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11.3"
+prefect = "^2.14.2"
+pendulum = "^2.1.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+line-length = 88
