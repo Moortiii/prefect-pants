@@ -20,8 +20,7 @@ services:
   server:
     image: prefect-pants
     restart: always
-    #entrypoint: ["/opt/prefect/entrypoint.sh", "prefect", "server", "start"]
-    command: ["python", "/app/prefect", "server", "start"]
+    entrypoint: ["python", "/app/prefect", "server", "start"]
     environment:
       <<: *no-proxy
       PREFECT_UI_URL: http://127.0.0.1:4900/api
@@ -38,7 +37,7 @@ services:
   worker:
     image: prefect-pants
     restart: always 
-    entrypoint: ["/opt/prefect/entrypoint.sh", "prefect", "worker", "start", "--pool", "example-pool", "--type", "process"]
+    entrypoint: ["python", "/app/prefect", "worker", "start", "--pool", "example-pool", "--type", "process"]
     volumes:
       - "./flows:/root/flows"
     environment:

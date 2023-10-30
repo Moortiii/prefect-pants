@@ -4,6 +4,7 @@ pex_binary(
     layout="loose",
     script="prefect",
     output_path="prefect.pex",
+    inherit_path="prefer",
     dependencies=[
         "3rdparty/python#prefect",
         "projects/example-service/example_service/flows",
