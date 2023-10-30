@@ -34,6 +34,23 @@ services:
       - database
     profiles: ["server"]
 
+  server-loose:
+    image: prefect-pants
+    restart: always
+    entrypoint: ["python", "/app/prefect-loose", "server", "start"]
+    environment:
+      <<: *no-proxy
+      PREFECT_UI_URL: http://127.0.0.1:4901/api
+      PREFECT_API_URL: http://127.0.0.1:4901/api
+      PREFECT_SERVER_API_PORT: 4901
+      PREFECT_SERVER_API_HOST: 0.0.0.0
+      PREFECT_API_DATABASE_CONNECTION_URL: postgresql+asyncpg://postgres:postgres@database:5432/prefect
+    ports:
+      - 4901:4901
+    depends_on:
+      - database
+    profiles: ["server"]
+
   worker:
     image: prefect-pants
     restart: always 
