@@ -1,0 +1,43 @@
+version: "3"
+
+tasks:
+  network:
+    desc: Create docker network
+    cmds:
+      - docker network create internal
+    status:
+      - docker network inspect internal --driver=bridge --attachable
+
+  lock:
+    desc: Update lockfile for dependencies
+    cmds:
+      - pants generate-lockfiles
+
+  roots:
+    desc: "Generate .env file used to set PYTHONPATH for Visual Studio Code"
+    cmds:
+      - python3 -c "print('PYTHONPATH=\"./' + ':./'.join(\"$(pants roots --roots-sep=' ')\".split()) + ':\$PYTHONPATH\"')" > .env
+
+  format:
+    aliases:
+      - fmt
+    desc: "Run formatter (black) on all files"
+    cmds:
+      - "pants fmt ::"
+
+  lint:
+    desc: "Run linter (ruff) on all files"
+    cmds:
+      - task: fmt
+      - "pants lint --only=ruff ::"
+
+  test:
+    desc: "Run tests for all projects and libraries"
+    cmds:
+      - "pants test ::"
+
+  build:
+    aliases:
+      - package
+    cmds:
+      - "pants package ::"

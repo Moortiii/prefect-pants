@@ -1,0 +1,23 @@
+[GLOBAL]
+pants_version = "2.17.0"
+
+backend_packages = ["pants.backend.docker", "pants.backend.python"]
+
+[anonymous-telemetry]
+enabled = true
+repo_id = "5485ca56-0a17-4284-b4e5-168be5887960"
+
+[python]
+pip_version = "23.0.1"
+interpreter_constraints = ['==3.11.6']
+enable_resolves = true
+default_resolve = "requirements"
+
+[python.resolves]
+requirements = "3rdparty/python/requirements.lock"
+
+[python-infer]
+use_rust_parser = true
+
+[source]
+root_patterns = ["libs/example-lib", "projects/example-service"]

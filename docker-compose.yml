@@ -18,9 +18,10 @@ services:
     profiles: ["server"]
 
   server:
-    image: prefecthq/prefect:2.14.2-python3.11
+    image: prefect-pants
     restart: always
-    entrypoint: ["/opt/prefect/entrypoint.sh", "prefect", "server", "start"]
+    #entrypoint: ["/opt/prefect/entrypoint.sh", "prefect", "server", "start"]
+    command: ["python", "/app/prefect", "server", "start"]
     environment:
       <<: *no-proxy
       PREFECT_UI_URL: http://127.0.0.1:4900/api
@@ -35,7 +36,7 @@ services:
     profiles: ["server"]
 
   worker:
-    image: prefecthq/prefect:2.14.2-python3.11
+    image: prefect-pants
     restart: always 
     entrypoint: ["/opt/prefect/entrypoint.sh", "prefect", "worker", "start", "--pool", "example-pool", "--type", "process"]
     volumes:
@@ -46,11 +47,8 @@ services:
     profiles: ["worker"]
 
   cli:
-    image: prefecthq/prefect:2.14.2-python3.11
+    image: prefect-pants
     entrypoint: "bash"
-    working_dir: "/root/flows"
-    volumes:
-      - "./flows:/root/flows"
     environment:
       <<: *no-proxy
       PREFECT_API_URL: http://server:4900/api
